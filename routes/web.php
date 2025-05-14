@@ -3,27 +3,33 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\HomepageController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
+
 
 Route::get('/hello-world', function () {
     return 'Ini adalah halaman hello world';
 });
 
 //kode lama
-Route::get('/', function () {
-    $title = 'Homepage';
-    return view('web.homepage', ['title'=>$title]);
-});
+// Route::get('/', function () {
+//     $title = 'Homepage';
+//     return view('web.homepage', ['title'=>$title]);
+// });
 
 //kode baru
-Route::get('/', [HomepageController::class, 'index']);
-//route get / akan memanggil homepage controller yang berisi view index?
+Route::get('/', [HomepageController::class, 'index'])->name('home');
+//route get / akan memanggil homepage controller yang berisi view index
 
-Route::get('products', [HomepageController::class, 'products']);
+Route::get('products', [ProductController::class, 'products']);
 Route::get('product/{slug}', [HomepageController::class, 'product']);
 Route::get('categories', [HomepageController::class, 'categories']);
 Route::get('category/{slug}', [HomepageController::class, 'category']);
 Route::get('cart', [HomepageController::class, 'cart']);
 Route::get('checkout', [HomepageController::class, 'checkout']);
+
+
+// Route::view()
 
 // Route::get('/products', function () {
 //     $title = 'Products';
@@ -36,7 +42,7 @@ Route::get('checkout', [HomepageController::class, 'checkout']);
 // });
 
 // Route::get('/categories', function () {
-//     $title = 'Categories';
+//     $title = 'Categories'; 
 //     return view('web.categories', ['title'=>$title]);
 // });
 
@@ -62,6 +68,20 @@ Route::get('checkout', [HomepageController::class, 'checkout']);
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('products',ProductController::class); 
+})->middleware(['auth', 'verified']); 
+
+// Route::group(['prefix'=>'dashboard'], function(){
+//     Route::get('/',[DashboardController::class,'index'])->name('Dashboard');
+// })->middleware(['auth','verified']);
+
+// //Route khusus untuk halaman admin
+// Route::prefix('dashboard')->middleware(['auth'])->group(function () {
+//     Route::resource('products', ProductController::class);
+// });
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
